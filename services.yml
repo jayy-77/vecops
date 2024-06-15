@@ -1,0 +1,15 @@
+sources:
+    -    name: "redis"
+         host: "127.0.0.1"
+         port: 6379
+sinks:
+    -   name: "clickhosue"
+        host: "127.0.0.1"
+        port: 8123
+    -   name: "redis"   
+        host: "127.0.0.1"
+        port: 6379
+service:
+   unit: ["vector.service", "fortinet.service"]
+webhook: 
+    url: "https://hooks.slack.com/services/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"
