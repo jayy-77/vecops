@@ -23,13 +23,14 @@ class App {
             Config config = mapper.readValue(new File(YML), Config.class);
 
             for(Source sources: config.sources) {
+                System.out.println(check_server_connection(sources.host, sources.port, TIMOUT));
                 if(!check_server_connection(sources.host, sources.port, TIMOUT)) {
                     String msg = sources.name + " source has lost the connection.";
                     PublishToSlack(config.webhook.url, msg);
                 }
             }
 
-            for(Sink sinks: config.sinks) {
+            for(Sink sinks : config.sinks) {
                 if(!check_server_connection(sinks.host, sinks.port, TIMOUT)) {
                     String msg = sinks.name + " sink has lost the connection.";
                     PublishToSlack(config.webhook.url, msg);
@@ -37,7 +38,11 @@ class App {
             }
 
             for(String unit : config.service.unit){
-                JournalctlReader(config.webhook.url, unit);
+                String[] log = {"journalctl", "-u", unit, "--since", "5 minute ago"};
+                JournalctlReader(config.webhook.url, unit, log);
+
+                String[] status = {"systemctl", "is-active", unit};
+                JournalctlReader(config.webhook.url, unit, status);
             }
 
         } catch (IOException e) { e.printStackTrace(); }
@@ -61,9 +66,7 @@ class App {
         }
     }
 
-    public static void JournalctlReader (String webhook,String unit) {
-        String[] command = {"journalctl", "-u", unit, "--since", "5 minute ago"};
-
+    public static void JournalctlReader (String webhook, String unit, String[] command) {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
 
@@ -72,8 +75,13 @@ class App {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
+                System.out.println(line);
                 if(line.contains("error") || line.contains("ERROR") || line.contains("ERR")) {
                     PublishToSlack(webhook, line);
+                }
+
+                if(line.contains("inactive")) {
+                    PublishToSlack(webhook, unit + " is " + line);
                 }
             }
             int exitCode = process.waitFor();
@@ -82,6 +90,7 @@ class App {
             e.printStackTrace();
         }
     }
+
 
     public static void PublishToSlack(String webhook, String message) {
         String payload = "{\"text\":\"" + message + "\"}";
