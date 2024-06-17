@@ -1,3 +1,6 @@
+pipelines:
+    - name: "fortinet"
+      port: 8686
 sources:
     -    name: "redis"
          host: "127.0.0.1"
