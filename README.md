@@ -1,4 +1,4 @@
-Vector.dev Pipeline Monitoring System
+# Vector.dev Pipeline Monitoring System
 
 This project provides a monitoring system for Vector.dev pipelines, along with sources and sinks, using a combination of Telnet, system commands, and HTTP health checks. It reads configuration from a YAML file, checks the health of services, and publishes alerts to a webhook if any service is down or errors are detected.
 
