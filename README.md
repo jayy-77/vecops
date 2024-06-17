@@ -1,4 +1,3 @@
-# ![alt text](https://datadog-opensource.imgix.net/img/vector.png?w=1200&h=630&auto=format&fit=fill)
 Vector.dev Pipeline Monitoring System
 
 This project provides a monitoring system for Vector.dev pipelines, along with sources and sinks, using a combination of Telnet, system commands, and HTTP health checks. It reads configuration from a YAML file, checks the health of services, and publishes alerts to a webhook if any service is down or errors are detected.
